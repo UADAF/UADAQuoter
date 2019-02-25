@@ -1,14 +1,16 @@
 import Style.Companion.buttonArea
+import Style.Companion.gear
 import Style.Companion.quoteArea
 import javafx.beans.property.DoubleProperty
-import javafx.beans.property.Property
 import javafx.beans.property.SimpleIntegerProperty
-import javafx.scene.CacheHint
+import javafx.geometry.Pos
+import javafx.geometry.VPos
 import javafx.scene.Parent
 import javafx.scene.control.TextFormatter
-import javafx.scene.layout.Priority
+import javafx.scene.image.Image
 import javafx.scene.layout.Region
-import javafx.scene.paint.Paint
+import javafx.scene.text.Font
+import javafx.scene.text.TextAlignment
 import javafx.stage.Stage
 import javafx.util.converter.IntegerStringConverter
 import tornadofx.*
@@ -17,16 +19,18 @@ const val START_W = 800.0
 const val START_H = 600.0
 
 typealias PropertyGetter = (Region) -> DoubleProperty
-
+private val oswaldFont: Font = loadFont("/Oswald-Regular.ttf", 24.0)!!
 class MainScreen : View() {
 
     private val viewModel = object : ViewModel() {
         val pos = bind { SimpleIntegerProperty(1) }
     }
 
+    private val gear: Image
+
     init {
         title = "Unified Anti-Divine Astral Quoter"
-
+        gear = Image(javaClass.getResourceAsStream("/gear.png"))
     }
 
     private val DIGIT_PATTERN = "\\d*".toRegex()
@@ -56,6 +60,22 @@ class MainScreen : View() {
         prefWidthProperty().bind((parent as Region).minWidthProperty() * 0.3)
         fitToParentHeight()
         addClass(buttonArea)
+        logo()
+    }
+
+    private fun Parent.logo() = hbox {
+        fitToParentWidth()
+        addClass(Style.logo)
+        val g = imageview(gear) {
+            addClass(Style.gear)
+            fitWidth = 64.0
+            fitHeight = 64.0
+        }
+        label("UADAQ") {
+            minHeightProperty().bind(g.fitHeightProperty())
+            minWidthProperty().bind((parent as Region).minWidthProperty().subtract(g.fitWidthProperty()))
+            addClass(Style.title)
+        }
     }
 
     private fun Region.setChildrenWidths(vararg widths: Int, prop: PropertyGetter = Region::minWidthProperty, childProp: PropertyGetter = prop, parentProp: PropertyGetter = prop) {
@@ -76,12 +96,15 @@ class Style : Stylesheet() {
         val root by cssclass()
         val quoteArea by cssclass()
         val buttonArea by cssclass()
+        val logo by cssclass()
+        val gear by cssclass()
+        val title by cssclass()
     }
 
     init {
 
         root {
-            backgroundColor = multi(c("pink"))
+            backgroundColor = multi(c("#2C2F33"))
         }
 
         quoteArea {
@@ -91,6 +114,18 @@ class Style : Stylesheet() {
             backgroundColor = multi(c("#23272A"))
             maxWidth = 350.px
         }
+
+        logo {
+            padding = box(15.px, 0.px, 15.px, 15.px)
+        }
+
+        title {
+            padding = box(0.px, 30.px, 0.px, 0.px)
+            alignment = Pos.CENTER
+            textFill = c("#9d9d9d")
+            font = oswaldFont
+        }
+
     }
 }
 
